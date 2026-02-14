@@ -1,6 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-function App() {
+export default function App() {
+  const [dark, setDark] = useState(false);
+
+  // Detect system theme on first load
+  useEffect(() => {
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setDark(systemPrefersDark);
+  }, []);
+
+  // Apply dark mode class to <html>
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (dark) {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+  }, [dark]);
+
+  const toggleDark = () => setDark(prev => !prev);
+
+  
   const [url, setUrl] = useState("");
   const [status, setStatus] = useState("");
 
@@ -27,41 +48,44 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center p-6">
-      <div className="backdrop-blur-xl bg-white/70 shadow-2xl rounded-2xl p-10 w-full max-w-xl border border-white/40">
-        <h1 className="text-3xl font-bold text-gray-900 text-center mb-6 tracking-tight">
-          SoundCloud Playlist Downloader
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-purple-500 dark:from-deepPurple-950 dark:to-deepPurple-700 flex items-center justify-center p-6 relative">
+    <button
+      onClick={toggleDark}
+      className="absolute top-4 right-4 px-3 py-2 rounded-lg bg-purple-200 dark:bg-deepPurple-500 text-deepPurple-600 dark:text-purple-200 shadow hover:scale-105 transition">
+      {dark ? "Light Mode" : "Dark Mode"}
+    </button>
 
-        <p className="text-gray-600 text-center mb-8">
-          Paste a playlist URL below and we’ll fetch every track for you.
-        </p>
+    <div className="backdrop-blur-xl bg-white/70 dark:bg-purple-900/60 shadow-2xl rounded-2xl p-10 w-full max-w-xl border border-white/40 dark:border-purple-700/40">
+      <h1 className="text-3xl font-bold text-purple-900 dark:text-purple-100 text-center mb-6 tracking-tight">
+        SoundCloud Playlist Downloader
+      </h1>
 
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="https://soundcloud.com/playlist/..."
-            value={url}
-            onChange={e => setUrl(e.target.value)}
-            className="w-full p-4 rounded-xl border border-gray-300 bg-white/80 shadow-sm focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition"
-          />
+      <p className="text-purple-600 dark:text-purple-300 text-center mb-8">
+        Paste a playlist URL below and we’ll fetch every track for you.
+      </p>
 
-          <button
-            onClick={startDownload}
-            className="w-full py-4 rounded-xl bg-purple-500 text-white font-semibold shadow-md hover:bg-purple-600 hover:shadow-lg active:scale-[0.98] transition-all"
-          >
-            Download Playlist
-          </button>
-        </div>
+      <div className="space-y-4">
+        <input
+          type="text"
+          placeholder="https://soundcloud.com/playlist/..."
+          value={url}
+          onChange={e => setUrl(e.target.value)}
+          className="w-full p-4 rounded-xl border border-purple-300 dark:border-deepPurple-600 bg-white/80 dark:bg-deepPurple-800/60 text-deepPurple-900 dark:text-deepPurple-100 shadow-sm focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition"
+        />
 
-        {status && (
-          <p className="mt-6 text-center text-gray-800 font-medium">
-            {status}
-          </p>
-        )}
+        <button
+          onClick={startDownload}
+          className="w-full py-4 rounded-xl bg-purple-500 hover:bg-purple-600 text-white font-semibold shadow-md hover:shadow-lg active:scale-[0.98] transition-all">
+          Download Playlist
+        </button>
       </div>
+
+      {status && (
+        <p className="mt-6 text-center text-purple-800 dark:text-purple-200 font-medium">
+          {status}
+        </p>
+      )}
     </div>
+  </div>
   );
 }
-
-export default App;
