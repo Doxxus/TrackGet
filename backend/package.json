@@ -1,0 +1,20 @@
+{
+  "name": "soundcloud-downloader",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "ts-node src/server.ts"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "yt-dlp-exec": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.2.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
