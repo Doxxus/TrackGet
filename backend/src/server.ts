@@ -1,43 +1,3 @@
-// import express from "express";
-// import cors from "cors";
-// import path from "path";
-// import { mkdirSync } from "fs";
-// import ytdl from "youtube-dl-exec";
-
-// const app = express();
-// app.use(cors());
-// app.use(express.json());
-
-// app.post("/download", async (req, res) => {
-//   const { playlistUrl } = req.body;
-
-//   if (!playlistUrl) {
-//     return res.status(400).json({ error: "Missing playlistUrl" });
-//   }
-
-//   const outputDir = path.join(process.cwd(), "downloads");
-//   mkdirSync(outputDir, { recursive: true });
-
-//   // Respond immediately so the UI doesn't hang
-//   res.json({ status: "started" });
-
-//   try {
-//     const result = await ytdl(playlistUrl, {
-//       extractAudio: true,
-//       audioFormat: "mp3",
-//       output: `${outputDir}/%(playlist_index)s - %(title)s.%(ext)s`,
-//     });
-
-//     console.log("Download complete:", result);
-//   } catch (err) {
-//     console.error("Download failed:", err);
-//   }
-// });
-
-// app.listen(4000, () => {
-//   console.log("Backend running on http://localhost:4000");
-// });
-
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -47,6 +7,27 @@ import youtubed1 from "youtube-dl-exec";
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const clients: express.Response[] = [];
+
+function broadcast(message: string) {
+  for (const client of clients) {
+    client.write(`data: ${message}\n\n`);
+  }
+}
+
+app.get("/events", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  clients.push(res);
+
+  req.on("close", () => {
+    const index = clients.indexOf(res);
+    if (index !== -1) clients.splice(index, 1);
+  });
+});
 
 app.post("/download", (req, res) => {
   const { playlistUrl } = req.body;
@@ -72,15 +53,19 @@ app.post("/download", (req, res) => {
   );
 
   child.stdout?.on("data", (data: Buffer) => {
-    console.log("[youtube-dl]", data.toString());
+    const text = data.toString();
+    console.log("[yt-dlp]", text);
+    broadcast(text);
   });
 
   child.stderr?.on("data", (data: Buffer) => {
-    console.error("[youtube-dl error]", data.toString());
+    const text = data.toString();
+    console.error("[yt-dlp error]", text);
+    broadcast(text);
   });
 
   child.on("close", (code: number) => {
-    console.log("Download finished with code", code);
+    broadcast(`DONE:${code}`);
   });
 });
 
