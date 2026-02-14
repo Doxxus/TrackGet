@@ -27,34 +27,39 @@ function App() {
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: "40px auto", fontFamily: "sans-serif" }}>
-      <h1>SoundCloud Playlist Downloader</h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center p-6">
+      <div className="backdrop-blur-xl bg-white/70 shadow-2xl rounded-2xl p-10 w-full max-w-xl border border-white/40">
+        <h1 className="text-3xl font-bold text-gray-900 text-center mb-6 tracking-tight">
+          SoundCloud Playlist Downloader
+        </h1>
 
-      <input
-        type="text"
-        placeholder="Enter SoundCloud playlist URL"
-        value={url}
-        onChange={e => setUrl(e.target.value)}
-        style={{
-          width: "100%",
-          padding: "12px",
-          fontSize: "16px",
-          marginBottom: "20px"
-        }}
-      />
+        <p className="text-gray-600 text-center mb-8">
+          Paste a playlist URL below and we’ll fetch every track for you.
+        </p>
 
-      <button
-        onClick={startDownload}
-        style={{
-          padding: "12px 20px",
-          fontSize: "16px",
-          cursor: "pointer"
-        }}
-      >
-        Download Playlist
-      </button>
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="https://soundcloud.com/playlist/..."
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            className="w-full p-4 rounded-xl border border-gray-300 bg-white/80 shadow-sm focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition"
+          />
 
-      <p style={{ marginTop: "20px" }}>{status}</p>
+          <button
+            onClick={startDownload}
+            className="w-full py-4 rounded-xl bg-purple-500 text-white font-semibold shadow-md hover:bg-purple-600 hover:shadow-lg active:scale-[0.98] transition-all"
+          >
+            Download Playlist
+          </button>
+        </div>
+
+        {status && (
+          <p className="mt-6 text-center text-gray-800 font-medium">
+            {status}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
