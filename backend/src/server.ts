@@ -43,6 +43,7 @@ app.post("/download", (req, res) => {
   const child = youtubed1.exec(
     playlistUrl,
     {
+      extractAudio: true,
       audioFormat: "mp3",
       audioQuality: 0,
       output: `${outputDir}/%(playlist_index)s - %(title)s.%(ext)s`,

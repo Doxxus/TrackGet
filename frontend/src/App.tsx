@@ -4,7 +4,17 @@ import { Toast } from "./Toast";
 import { ProgressBar } from "./ProgressBar";
 
 export default function App() {
+  const toggleDark = () => setDark(prev => !prev);
+
   const [dark, setDark] = useState(false);
+  const [url, setUrl] = useState("");
+  const [status, setStatus] = useState(""); 
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentTrack, setCurrentTrack] = useState<string | null>(null);
+  const [consoleLines, setConsoleLines] = useState<string[]>([]);
+  const [showConsole, setShowConsole] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -19,11 +29,6 @@ export default function App() {
       root.classList.remove("dark");
     }
   }, [dark]);
-
-  const toggleDark = () => setDark(prev => !prev);
-
-  const [url, setUrl] = useState("");
-  const [status, setStatus] = useState("");
 
   const startDownload = async () => {
     setStatus("Starting download...");
@@ -47,42 +52,30 @@ export default function App() {
     }
   };
 
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentTrack, setCurrentTrack] = useState<string | null>(null);
-  const [consoleLines, setConsoleLines] = useState<string[]>([]);
-  const [showConsole, setShowConsole] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-
   useEffect(() => {
     const events = new EventSource("http://localhost:4000/events");
 
     events.onmessage = (event) => {
       const line = event.data;
-
-      // Track console output
       setConsoleLines(prev => [...prev, line]);
 
-      // Detect progress
       const pct = parseProgress(line);
       if (pct !== null) {
         setIsDownloading(true);
         setProgress(pct);
       }
 
-      // Detect track name
       const track = parseTrackTitle(line);
       if (track) {
         setIsDownloading(true);
         setCurrentTrack(track);
       }
 
-      // Detect completion
       if (line.startsWith("DONE")) {
         setProgress(100);
         setToast("Download complete");
+        setStatus("Download complete.");
 
-        // Hide progress bar after a short delay
         setTimeout(() => {
           setIsDownloading(false);
           setProgress(0);
